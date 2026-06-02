@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "updated_at": null,
+  "defaults": {
+    "timezone": "America/Los_Angeles",
+    "lookback_hours": 12,
+    "cadence": "morning-run-then-ask-about-afternoon"
+  },
+  "mailboxes": {
+    "joshphs@gmail.com": {
+      "connector": "gmail",
+      "access": "drafts+labels",
+      "last_reviewed_through": null,
+      "last_run_at": null,
+      "last_run_kind": null,
+      "last_message_count": null
+    },
+    "jdavis@davis-lawgroup.com": {
+      "connector": "ms365-or-outlook-ui",
+      "access": "read-only",
+      "last_reviewed_through": null,
+      "last_run_at": null,
+      "last_run_kind": null,
+      "last_message_count": null
+    },
+    "josh@dlhalaw.com": {
+      "connector": "outlook-ui",
+      "access": "read-only",
+      "last_reviewed_through": null,
+      "last_run_at": null,
+      "last_run_kind": null,
+      "last_message_count": null
+    },
+    "jdavis@fellnerlawgroup.com": {
+      "connector": "outlook-ui",
+      "access": "read-only",
+      "last_reviewed_through": null,
+      "last_run_at": null,
+      "last_run_kind": null,
+      "last_message_count": null
+    }
+  }
+}
