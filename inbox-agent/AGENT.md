@@ -8,6 +8,11 @@ and applies triage labels where it can.
 It runs inside a Claude session that has the relevant connectors authorized.
 See `RUN.md` for how to trigger it and the twice-daily schedule.
 
+> **Triage taxonomy:** the **Act / Review / Skip** buckets in this file are the
+> Gmail **label** layer. For multi-firm runs, `DESKTOP.md` refines triage into
+> **P1 / P2 / P3 / Skip** (the current priority model). Crosswalk: **P1 + P2 →
+> Act**, **P3 → Review**, **Skip → Skip**.
+
 ---
 
 ## Accounts
