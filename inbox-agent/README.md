@@ -10,6 +10,12 @@ See [`AGENT.md`](./AGENT.md) for the per-account capability matrix — notably t
 Microsoft/Outlook connector is **read-only**, so on work mail the agent proposes
 draft text and flags triage in the digest instead of writing into Outlook.
 
+For the **multi-firm Outlook setup** (davis-lawgroup + dlhalaw + fellner), the
+managed M365 connector only holds one account and can't be duplicated, so those
+mailboxes run from the **Claude Desktop app** driving Outlook directly. That
+handoff — cadence, "nothing missed" logic, priority/checklist format, and a
+kick-off prompt for a fresh session — lives in [`DESKTOP.md`](./DESKTOP.md).
+
 - **What it does & the rules it follows:** [`AGENT.md`](./AGENT.md)
 - **How to run it (and the twice-daily schedule):** [`RUN.md`](./RUN.md)
 
