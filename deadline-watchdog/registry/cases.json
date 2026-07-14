@@ -1,0 +1,36 @@
+{
+  "cases": [
+    {
+      "id": "orlean-v-reiland",
+      "caption": "Orlean v. Reiland, et al.",
+      "aliases": ["Orlean v Davis et al", "Orlean v. Davis (Cal-Lawyer)", "Orlean"],
+      "forum": "U.S. District Court (removed from California state court 2026-06-12; likely C.D. Cal. — Riverside; VERIFY district and docket number from the Notice of Assignment PDF)",
+      "docket_number": null,
+      "courtlistener_docket_id": null,
+      "josh_role": "Defendant (not yet personally served as of 2026-06-26)",
+      "josh_counsel": [
+        "Alex Graft <alex.graft@lewisbrisbois.com>",
+        "Nancy Lew-Pham <nancy.lew-pham@lewisbrisbois.com>",
+        "Ashley Kim <ashley.kim@lewisbrisbois.com>"
+      ],
+      "plaintiff_counsel": [
+        "Fred Knez <fredknez@knezlaw.com> (Knez Law, Riverside CA)",
+        "Jamilex Chairez <Jamilexchairez@knezlaw.com> (legal secretary)"
+      ],
+      "co_defendant_counsel": ["Hal Reiland <hal@reilandlaw.com>"],
+      "notes": "Removed by co-defendant Reiland 6/12. Reiland filed Motion to Dismiss or Change Venue (noticed 6/24). Meet-and-confer re venue ongoing; forum-selection clause argument for N.D. Cal. Related probate matter; severance discussed.",
+      "watch_firm": "Davis Law Group (Outlook)"
+    },
+    {
+      "id": "fellner-matters",
+      "caption": "Fellner Law Group matters (general)",
+      "aliases": ["Fellner", "POD meeting"],
+      "forum": null,
+      "docket_number": null,
+      "courtlistener_docket_id": null,
+      "josh_role": "Attorney",
+      "notes": "Tracked via Notion meeting notes. Open item discussed 5/5/2026: sanction equal to estimated tax on $550,000 in an unnamed matter — no deadline date captured yet.",
+      "watch_firm": "Fellner Law Group (Notion)"
+    }
+  ]
+}
