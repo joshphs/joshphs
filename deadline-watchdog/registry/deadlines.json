@@ -1,0 +1,65 @@
+{
+  "updated": "2026-07-14",
+  "items": [
+    {
+      "id": "orlean-service-on-josh",
+      "case": "orlean-v-reiland",
+      "type": "watch",
+      "title": "Service of process on Josh Davis — starts the response clock",
+      "date": null,
+      "status": "UNVERIFIED",
+      "rule_basis": "FRCP 81(c)(2): in a removed action, respond within the longest of 21 days after receipt/service of the initial pleading or 7 days after removal. Removal was 2026-06-12, so effectively ~21 days after service.",
+      "source": "Josh's email to Lewis Brisbois 2026-06-26: 'Still haven't been served.'",
+      "action": "Every run: scan Outlook/Gmail/docket for proof of service on Davis. The moment service appears, compute candidate response date and RED FLAG until counsel confirms.",
+      "added": "2026-07-14"
+    },
+    {
+      "id": "orlean-venue-motion-hearing",
+      "case": "orlean-v-reiland",
+      "type": "needs-date",
+      "title": "Reiland Motion to Dismiss or Change Venue — hearing date unknown",
+      "date": null,
+      "status": "UNVERIFIED",
+      "rule_basis": "Hearing date is inside '26.06.24 Notice of Mt to Dismiss or Change Venue.pdf' (Outlook attachment). If C.D. Cal., opposition due 21 days before hearing (L.R. 7-9); reply 14 days before (L.R. 7-10).",
+      "source": "Knez Law service email 2026-06-26 ('ORLEAN V. REILAND, ET. AL.'), attachment list.",
+      "action": "Extract the hearing date from the notice PDF (or the docket once subscribed) and convert this to a dated entry.",
+      "added": "2026-07-14"
+    },
+    {
+      "id": "orlean-magistrate-consent",
+      "case": "orlean-v-reiland",
+      "type": "needs-date",
+      "title": "Consent/decline to proceed before U.S. Magistrate Judge",
+      "date": null,
+      "status": "UNVERIFIED",
+      "rule_basis": "Deadline stated in '26.06.23 Notice to Counsel re Consent to Proceed USDC.pdf'. Districts set a fixed response window from assignment.",
+      "source": "Knez Law service email 2026-06-26, attachment list.",
+      "action": "Extract the stated deadline from the notice PDF. Applies once Josh appears; counsel handles, but track it.",
+      "added": "2026-07-14"
+    },
+    {
+      "id": "orlean-meet-confer-response",
+      "case": "orlean-v-reiland",
+      "type": "watch",
+      "title": "Knez response to Reiland's meet-and-confer re venue (sent 6/26)",
+      "date": null,
+      "status": "watch",
+      "rule_basis": null,
+      "source": "Hal Reiland email to Fred Knez 2026-06-26, forwarded by Josh to Lewis Brisbois. Reiland also asserted the 12(b) motion extends his response deadline and asked Knez to disagree or be deemed in agreement.",
+      "action": "Watch both mailboxes for Knez's reply; it affects the venue motion and possible severance/refiling in N.D. Cal.",
+      "added": "2026-07-14"
+    },
+    {
+      "id": "fellner-550k-sanction",
+      "case": "fellner-matters",
+      "type": "watch",
+      "title": "Sanction (estimated tax on $550,000) discussed in Fellner POD meeting — no date captured",
+      "date": null,
+      "status": "watch",
+      "rule_basis": null,
+      "source": "Notion meeting note dated 2026-05-05.",
+      "action": "Scan Notion for the underlying matter name and any payment/response deadline.",
+      "added": "2026-07-14"
+    }
+  ]
+}
