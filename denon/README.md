@@ -280,19 +280,67 @@ the next session.
   Standby, and other people at the house. The remote-observation ambiguity is
   also moot — this is being watched directly, not through the client list.
 
+- **2026-07-27** — **Settings menu photographed. Found the likely cause.**
+
+  `Video/HDMI Setup` reads:
+
+  | Setting | Value |
+  |---|---|
+  | HDMI Audio Out | AVR |
+  | HDMI Pass Through | On |
+  | – Pass Through Source | Last |
+  | – RC Source Select | Power On + Source |
+  | **HDMI Control** | **On** |
+  | – ARC | On |
+  | – TV Audio Switching | Off |
+  | **Power Off Control** | **All** |
+  | – Power Saving | Off |
+  | – Smart Menu | Off |
+
+  **`Power Off Control: All`** is the finding. The on-screen help states it
+  plainly — it "activates standby with a command from all sources." Any device
+  on the CEC bus can put the receiver into standby, not just the TV. A source
+  asserting standby while waking or renegotiating its HDMI link takes the
+  receiver down, and the TV follows once it loses its audio path.
+
+  This also explains the intermittency, which never fit a hardware fault.
+  Sources renegotiate HDMI during power-on; if one asserts standby mid-handshake
+  the receiver obeys. When the timing happens to work out, nothing asserts
+  standby and the system stays up — which is exactly "retry enough times and it
+  eventually sticks."
+
+  Front panel corroborates: displays `PowerOff Ctrl All`.
+
+  Fix ladder, in order:
+
+  1. **`Power Off Control` → `Off`.** Unlinks the receiver from other devices'
+     standby commands. Test by cycling the TV several times.
+  2. If it persists, **`HDMI Control` → `Off`** to disable CEC entirely. Loses
+     TV-wakes-receiver until re-enabled, but it is decisive.
+  3. **Still dies with CEC fully off** → not CEC. Back to the marginal HDMI link
+     or the power supply, and the `monitor` capture becomes the next step.
+
+  `HDMI Pass Through: On` keeps the unit on the CEC bus during standby, so it
+  listens for standby commands continuously. Fine on its own; only a problem
+  paired with `Power Off Control: All`. `RC Source Select: Power On + Source`
+  can cause spurious wake-ups but never shutdowns, so it is not implicated.
+
 ## Pick up here
 
-State as of the last session. Several earlier open questions are now answered
-and are recorded above rather than repeated here.
+State as of the last session. Earlier open questions that are now answered are
+recorded in the log above rather than repeated here.
 
-**Answered:** the fault is observed directly at the house, not inferred from the
-UniFi client list, so the remote-observation ambiguity is gone. It is
-TV-triggered, not spontaneous. Both devices die together. Retrying eventually
-sticks. Grid events, PSPS, network commands, Auto Standby, and other occupants
-are all ruled out by that description.
+**Current status: a fix is applied and awaiting confirmation.**
+`Power Off Control` was found set to `All`, which lets any CEC device put the
+receiver into standby. Changed to `Off`. **Whether that actually fixed it is the
+open question** — cycle the TV several times and see.
 
-**The one thing that decides it.** From a laptop on the house network, with the
-system powered on:
+If it persists, work down the ladder in the 2026-07-27 log entry: `HDMI Control`
+→ `Off` to rule CEC out entirely, and if it still dies with CEC off, the cause is
+physical and the capture below becomes the next step.
+
+**The measurement, if it comes to that.** From a laptop on the house network,
+with the system powered on:
 
 ```bash
 python3 denon_watch.py monitor --log denon.log
@@ -314,12 +362,15 @@ be obtained by watching the front panel.
 
 **Still unknown:**
 
-1. **Receiver model** — `denon_watch.py info` prints it, along with HDMI
-   Control, Power Off Control, Auto Standby, and Network Standby. Menu paths in
-   this guide are generic until we have it.
-2. **Which device goes dark first**, TV or receiver. One free observation per
-   failure. TV first means it's initiating and dragging the receiver down;
-   receiver first means the reverse.
-3. **Whether the TV's HDMI cable has been swapped.** A marginal cable is the
-   single most common cause of an intermittent handshake, and it is a
-   sixty-second test.
+1. **Did `Power Off Control: Off` fix it?** The whole question right now.
+2. **Which CEC device is asserting standby**, if the fix works but the
+   convenience of TV-wakes-receiver is wanted back. Re-enable linkage, then
+   disable CEC on sources one at a time — it is usually one specific box.
+3. **Receiver model** — `denon_watch.py info` prints it. Menu paths here are
+   generic until we have it, though the photographed menu matches the standard
+   AVR-X layout.
+4. **Which device goes dark first**, TV or receiver. One free observation per
+   failure, and it only matters if the CEC fixes fail.
+5. **Whether the TV's HDMI cable has been swapped.** Sixty-second test, and the
+   most common cause of an intermittent handshake if this turns out not to be
+   CEC after all.
