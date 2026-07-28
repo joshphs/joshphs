@@ -325,6 +325,44 @@ the next session.
   paired with `Power Off Control: All`. `RC Source Select: Power On + Source`
   can cause spurious wake-ups but never shutdowns, so it is not implicated.
 
+- **2026-07-27** — **Constraint added: one remote for everything, the NVIDIA
+  Shield remote.** This makes `HDMI Control → Off` a diagnostic step only, never
+  an end state — single-remote control *is* CEC, so disabling it trades one
+  broken thing for another.
+
+  It does not conflict with the fix, though. `Power Off Control` governs standby
+  linkage only. Power-*on* linkage comes from `HDMI Control` plus the source's
+  one-touch-play, so with `Power Off Control: Off` the Shield still wakes the TV
+  and receiver and selects the input. Volume still works — `HDMI Audio Out: AVR`
+  and `ARC: On` are already correct for that. The only loss is one-button-*off*,
+  and that is recoverable.
+
+  **The Shield is the prime suspect.** `Power Off Control: All` lets any CEC
+  device force standby, and the Shield is a known offender: it broadcasts a CEC
+  standby when it sleeps and when it renegotiates HDMI on wake. It also has an
+  auto-sleep timer and re-handshakes on wake, which accounts for the
+  intermittency — sometimes it asserts standby mid-sequence, sometimes it does
+  not.
+
+  **Principle for the end state: let devices turn things ON, never OFF.**
+  Asymmetric CEC config kills nearly every feedback loop while keeping the
+  convenience.
+
+  Target configuration:
+
+  | Box | Setting | Value |
+  |---|---|---|
+  | Shield | CEC master / one-touch-play | **On** — this is what wakes everything |
+  | Shield | "TV auto power off" / device auto power off | **Off** — stops it broadcasting standby |
+  | Shield | Energy saver auto-sleep | Never, or pushed well out |
+  | Denon | `HDMI Control` | On |
+  | Denon | `Power Off Control` | **`Video`** — not `All` |
+
+  `Video` links standby only on video sources, restoring one-button-off with a
+  far smaller blast radius than `All`. Shield menu naming shifts by firmware;
+  the settings live under Display & Sound → HDMI → CEC, and Device Preferences →
+  Energy saver.
+
 ## Pick up here
 
 State as of the last session. Earlier open questions that are now answered are
@@ -335,9 +373,18 @@ recorded in the log above rather than repeated here.
 receiver into standby. Changed to `Off`. **Whether that actually fixed it is the
 open question** — cycle the TV several times and see.
 
-If it persists, work down the ladder in the 2026-07-27 log entry: `HDMI Control`
-→ `Off` to rule CEC out entirely, and if it still dies with CEC off, the cause is
-physical and the capture below becomes the next step.
+**Hard constraint: one remote for everything, the Shield remote.** So CEC stays
+on. `HDMI Control → Off` is a diagnostic step, never where this lands.
+
+Sequence:
+
+1. `Power Off Control` → `Off`. Confirms the mechanism and stops the failures.
+   Costs one-button-off only; the Shield still wakes everything.
+2. Fix the Shield so it stops broadcasting standby, then set the Denon to
+   `Video` to get one-button-off back. Details in the 2026-07-27 entry above.
+3. Only if it survives step 1: `HDMI Control → Off` briefly as a pure test. Still
+   dying with CEC fully disabled means the cause is physical, and the capture
+   below becomes the next step.
 
 **The measurement, if it comes to that.** From a laptop on the house network,
 with the system powered on:
