@@ -3,6 +3,13 @@
 Tooling and a triage order for a Denon/Marantz AVR **at the Tahoe house** that
 keeps turning itself on and off.
 
+> **Status: the receiver is exonerated.** It was obeying a CEC standby command
+> (`Power Off Control: All`), not failing. With that setting off, the Denon stays
+> on while the rest of the chain shuts down. What remains is finding which device
+> still broadcasts standby — see **[Pick up here](#pick-up-here)** at the bottom
+> for current state. The reference sections below are general-purpose and
+> deliberately still cover causes this case has ruled out.
+
 ## Situation
 
 The receiver is at the Tahoe house. Nobody is standing in front of it. That
@@ -363,28 +370,70 @@ the next session.
   the settings live under Display & Sound → HDMI → CEC, and Device Preferences →
   Energy saver.
 
+- **2026-07-27** — **`Power Off Control: Off` applied. Receiver no longer
+  follows.** TV and Shield turned off; **the Denon stayed on.** Previously all
+  three died together.
+
+  This confirms the mechanism and **exonerates the receiver**. It was never
+  faulty — it was obeying a standby command it was configured to accept. The
+  marginal-HDMI-link and failing-power-supply hypotheses are both dead: a unit
+  losing power or tripping protection does not selectively keep running once a
+  menu setting changes.
+
+  The remaining problem is smaller and has moved upstream: **something is still
+  broadcasting a CEC standby**, and the TV and Shield still obey it.
+
+  Also: the Shield became unreachable, which blocks configuring it. Anything
+  that sleeps the Shield mid-configuration makes its settings unreachable, so
+  the CEC bus has to be quieted before the Shield can be fixed.
+
+  Unblock sequence:
+
+  1. **Power-cycle the Shield** — unplug ten seconds — to get it booted.
+  2. **Samsung: Settings → General → External Device Manager → Anynet+
+     (HDMI-CEC) → Off.** Some model years file External Device Manager under
+     *Connection*. Anynet+ is Samsung's CEC; with it off the TV can neither send
+     nor obey standby, so nothing can sleep the Shield mid-configuration.
+  3. Fix the Shield's CEC and Energy Saver settings, then re-enable Anynet+.
+
+  **Step 2 doubles as the discriminator for who initiates.** With Anynet+ off:
+  Shield still sleeps on its own → its Energy Saver is the trigger, and it was
+  broadcasting standby all along with the Denon merely obeying. Everything stays
+  up → the **TV** was initiating and the Shield was following it down, which is
+  a different culprit than the Shield-first theory predicted.
+
+  Two Samsung settings that power the TV off unprompted and then take the chain
+  with them, both worth disabling while sorting this out: **Auto Power Off**
+  (under Eco Solution, or *Power and Energy Saving* on newer sets) and **No
+  Signal Power Off**, which fires roughly fifteen minutes after signal loss and
+  could be tripped by the Shield renegotiating.
+
 ## Pick up here
 
 State as of the last session. Earlier open questions that are now answered are
 recorded in the log above rather than repeated here.
 
-**Current status: a fix is applied and awaiting confirmation.**
-`Power Off Control` was found set to `All`, which lets any CEC device put the
-receiver into standby. Changed to `Off`. **Whether that actually fixed it is the
-open question** — cycle the TV several times and see.
+**The receiver is no longer the problem.** `Power Off Control: Off` worked — the
+TV and Shield still shut off, but the Denon now stays on. It was obeying a
+standby command, not failing. Hardware hypotheses are closed.
 
-**Hard constraint: one remote for everything, the Shield remote.** So CEC stays
-on. `HDMI Control → Off` is a diagnostic step, never where this lands.
+**What remains:** something on the CEC bus still broadcasts standby, and the TV
+and Shield still obey. Whether that is the Shield's Energy Saver or one of the
+TV's own auto-power-off settings is the open question, and turning Anynet+ off
+on the Samsung answers it — see the 2026-07-27 entry above.
 
-Sequence:
+**Hard constraint: one remote for everything, the Shield remote.** CEC stays on
+in the end state. `HDMI Control → Off` and `Anynet+ → Off` are both temporary
+diagnostic or unblocking steps, never where this lands.
 
-1. `Power Off Control` → `Off`. Confirms the mechanism and stops the failures.
-   Costs one-button-off only; the Shield still wakes everything.
-2. Fix the Shield so it stops broadcasting standby, then set the Denon to
-   `Video` to get one-button-off back. Details in the 2026-07-27 entry above.
-3. Only if it survives step 1: `HDMI Control → Off` briefly as a pure test. Still
-   dying with CEC fully disabled means the cause is physical, and the capture
-   below becomes the next step.
+Sequence from here:
+
+1. Power-cycle the Shield, turn Anynet+ off on the Samsung, fix the Shield's CEC
+   and Energy Saver settings. Note whether the Shield still sleeps with Anynet+
+   off — that names the initiator.
+2. Turn off the Samsung's Auto Power Off and No Signal Power Off.
+3. Re-enable Anynet+, set the Denon's `Power Off Control` to `Video`, and
+   confirm one-button-off works without the chain collapsing.
 
 **The measurement, if it comes to that.** From a laptop on the house network,
 with the system powered on:
