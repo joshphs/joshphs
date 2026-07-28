@@ -247,6 +247,34 @@ the next session.
   this through the UniFi client list is ambiguous by itself, since Network
   Standby off makes ordinary standby look like power loss.
 
+- **2026-07-26** — **First actual symptom description, and it reorders everything
+  above.** Not spontaneous cycling. The sequence is: turn the TV on → CEC wakes
+  the receiver → both stay up "for a bit" → **both** shut off together. Retrying
+  enough times eventually sticks and it stays on.
+
+  Two facts do the work here. *Everything* turning off together means CEC is
+  propagating a System Standby across the chain — a protection trip alone would
+  not take the TV with it. And *retrying eventually works*, which is the
+  signature of something marginal that sometimes succeeds, not of a schedule, a
+  command, or a grid event.
+
+  That leaves two candidates:
+
+  1. **Marginal HDMI link.** HDCP/EDID handshake failing intermittently — aging
+     or underspec cable, or a bandwidth-marginal 4K/HDR mode. Fails, CEC
+     propagates standby, retry until one attempt trains successfully.
+  2. **Failing power supply.** Works once warm; retrying heats it until it
+     holds. Denon HDMI boards and supply capacitors are a known aging failure,
+     and this one gets worse rather than better.
+
+  A single `monitor` capture across one reproduction discriminates them:
+  `PWSTANDBY` before the drop means it was *told* to shut down (CEC, receiver is
+  healthy); an unannounced socket drop means it *lost power* (hardware).
+
+  Ruled out by this description: grid events, PSPS, network commands, Auto
+  Standby, and other people at the house. The remote-observation ambiguity is
+  also moot — this is being watched directly, not through the client list.
+
 ### Open questions
 
 Unanswered, and each one changes the diagnosis:
