@@ -121,14 +121,19 @@ Stdlib Python 3.8+, no dependencies. Run it from a machine on the same
 subnet/VLAN as the receiver — including one you reach over Teleport or a
 site-to-site tunnel.
 
+`--host` is optional everywhere. Omit it and the receiver is discovered
+automatically, so there's no IP to copy between commands:
+
 ```bash
-python3 denon_watch.py discover                          # find it
-python3 denon_watch.py info    --host 192.168.1.50       # model + relevant settings
-python3 denon_watch.py monitor --host 192.168.1.50 --log denon.log
-#   ... leave running until it has misbehaved 3-4 times ...
-python3 denon_watch.py analyze denon.log                 # name the cause
-sudo python3 denon_watch.py sniff --host 192.168.1.50    # who is commanding it
+python3 denon_watch.py info                     # model + the settings that matter
+python3 denon_watch.py monitor --log denon.log  # leave running, reproduce the fault
+python3 denon_watch.py analyze denon.log        # name the cause
+sudo python3 denon_watch.py sniff               # who is commanding it
 ```
+
+Pass `--host 192.168.1.50` explicitly if there's more than one receiver, or if
+discovery can't see it (different VLAN, or Network Standby off while it sits in
+standby).
 
 `monitor` works because the receiver pushes every state change to anything
 connected on TCP 23, unprompted. You get a timestamped record of power, zone,

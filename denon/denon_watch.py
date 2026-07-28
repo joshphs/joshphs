@@ -193,19 +193,58 @@ def device_info(ip):
     return info
 
 
-def cmd_discover(args):
-    print("Looking for Denon/Marantz receivers...\n")
-
+def find_receivers(timeout=4.0, verbose=False):
+    """Return {ip: how_found} for hosts answering on the control port."""
     candidates = {}
-    for ip, loc in ssdp_discover(args.timeout).items():
+    for ip, loc in ssdp_discover(timeout).items():
         candidates[ip] = "SSDP"
 
     mine = local_ip()
     if mine:
         base = ".".join(mine.split(".")[:3])
-        print("Sweeping {}.0/24 for open control port {}...".format(base, CONTROL_PORT))
+        if verbose:
+            print("Sweeping {}.0/24 for open control port {}...".format(
+                base, CONTROL_PORT))
         for ip in sweep_subnet(base):
             candidates.setdefault(ip, "port-scan")
+
+    return candidates
+
+
+def resolve_host(args):
+    """The --host given, or the sole receiver on this subnet.
+
+    Every command except discover needs an address. Making the flag optional
+    removes the copy-the-IP-between-two-commands step, which matters when the
+    person running this is standing at the receiver rather than at a desk.
+    """
+    if getattr(args, "host", None):
+        return args.host
+
+    sys.stderr.write("No --host given, searching...\n")
+    found = {ip: how for ip, how in find_receivers().items()
+             if probe_port(ip, CONTROL_PORT)}
+
+    if not found:
+        sys.stderr.write(
+            "No receiver found. Pass --host explicitly, and note that a unit\n"
+            "with Network Standby off is invisible here whenever it is in\n"
+            "standby - which is itself worth knowing.\n")
+        return None
+    if len(found) > 1:
+        sys.stderr.write("Found {}. Pass --host to pick one.\n".format(
+            ", ".join(sorted(found))))
+        return None
+
+    ip = list(found)[0]
+    sys.stderr.write("Using {}\n\n".format(ip))
+    return ip
+
+
+def cmd_discover(args):
+    print("Looking for Denon/Marantz receivers...\n")
+
+    candidates = find_receivers(args.timeout, verbose=True)
 
     if not candidates:
         print("\nNothing found. Check you're on the same VLAN/subnet as the receiver,")
@@ -235,7 +274,9 @@ def cmd_discover(args):
 
 
 def cmd_info(args):
-    ip = args.host
+    ip = resolve_host(args)
+    if ip is None:
+        return 1
     print("Receiver: {}\n".format(ip))
 
     info = device_info(ip)
@@ -340,8 +381,12 @@ class Control:
 # --------------------------------------------------------------------------
 
 def cmd_monitor(args):
+    host = resolve_host(args)
+    if host is None:
+        return 1
+
     log = EventLog(args.log, echo=True)
-    log.write("SESSION", "monitor start host={} pid={}".format(args.host, os.getpid()))
+    log.write("SESSION", "monitor start host={} pid={}".format(host, os.getpid()))
 
     if args.log:
         print("# logging to {} - leave this running until it misbehaves a few times".format(
@@ -357,7 +402,7 @@ def cmd_monitor(args):
                 log.write("SESSION", "duration reached, stopping")
                 break
 
-            conn = Control(args.host)
+            conn = Control(host)
             try:
                 conn.connect()
             except OSError as e:
@@ -616,13 +661,17 @@ def cmd_analyze(args):
 
 def cmd_sniff(args):
     """Identify which hosts are sending control traffic to the receiver."""
+    host = resolve_host(args)
+    if host is None:
+        return 1
+
     ports = "23 or port 8080 or port 80 or port 60006"
-    expr = "host {} and (port {})".format(args.host, ports)
+    expr = "host {} and (port {})".format(host, ports)
     cmd = ["tcpdump", "-l", "-n", "-q", expr]
     if args.iface:
         cmd[1:1] = ["-i", args.iface]
 
-    print("Watching who talks to {}.".format(args.host))
+    print("Watching who talks to {}.".format(host))
     print("Anything appearing here other than this machine is a controller that")
     print("can power-cycle your receiver.\n")
     print("$ {}\n".format(" ".join(cmd)))
@@ -645,7 +694,7 @@ def cmd_sniff(args):
             if not m:
                 continue
             src, dst, dport = m.groups()
-            if dst == args.host:
+            if dst == host:
                 key = (src, dport)
                 talkers[key] = talkers.get(key, 0) + 1
                 if talkers[key] in (1, 10, 100, 1000):
@@ -674,11 +723,11 @@ def main():
     d.set_defaults(func=cmd_discover)
 
     i = sub.add_parser("info", help="dump model info and power-related settings")
-    i.add_argument("--host", required=True)
+    i.add_argument("--host", default=None, help="auto-discovered if omitted")
     i.set_defaults(func=cmd_info)
 
     m = sub.add_parser("monitor", help="log every state change with timestamps")
-    m.add_argument("--host", required=True)
+    m.add_argument("--host", default=None, help="auto-discovered if omitted")
     m.add_argument("--log", default=None, help="append events to this file")
     m.add_argument("--duration", type=float, default=0,
                    help="stop after N minutes (0 = run until Ctrl-C)")
@@ -689,7 +738,7 @@ def main():
     a.set_defaults(func=cmd_analyze)
 
     s = sub.add_parser("sniff", help="find which hosts send commands to the receiver")
-    s.add_argument("--host", required=True)
+    s.add_argument("--host", default=None, help="auto-discovered if omitted")
     s.add_argument("--iface", default=None)
     s.set_defaults(func=cmd_sniff)
 
