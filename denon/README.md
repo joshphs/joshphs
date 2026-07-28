@@ -280,15 +280,46 @@ the next session.
   Standby, and other people at the house. The remote-observation ambiguity is
   also moot — this is being watched directly, not through the client list.
 
-### Open questions
+## Pick up here
 
-Unanswered, and each one changes the diagnosis:
+State as of the last session. Several earlier open questions are now answered
+and are recorded above rather than repeated here.
 
-1. **How is the cycling being observed?** UniFi client list, HEOS app, or a
-   person at the house. Determines whether the observation is even reliable.
-2. **Receiver model.** Menu paths for HDMI Control and Network Standby differ by
-   model year; without it the guide can only give generic paths.
-3. **Its IP**, or confirmation that `discover` finds it.
-4. **Is it on a UniFi smart outlet?** If yes, the power-draw graph likely closes
-   this out with no tooling at all.
-5. **Is anything always-on at the house** that can run the monitor?
+**Answered:** the fault is observed directly at the house, not inferred from the
+UniFi client list, so the remote-observation ambiguity is gone. It is
+TV-triggered, not spontaneous. Both devices die together. Retrying eventually
+sticks. Grid events, PSPS, network commands, Auto Standby, and other occupants
+are all ruled out by that description.
+
+**The one thing that decides it.** From a laptop on the house network, with the
+system powered on:
+
+```bash
+python3 denon_watch.py monitor --log denon.log
+```
+
+Then reproduce it — TV off, TV on — and let it fail at least once. Then:
+
+```bash
+python3 denon_watch.py analyze denon.log
+```
+
+| What the capture shows | Verdict |
+|---|---|
+| `PWSTANDBY` immediately before the drop | It was **told** to shut down. CEC. Receiver is healthy, this is a settings fix |
+| Socket drops with nothing beforehand | It **lost power**. Failing supply or protection trip. Hardware |
+
+Nothing else in this file matters more than that one distinction, and it cannot
+be obtained by watching the front panel.
+
+**Still unknown:**
+
+1. **Receiver model** — `denon_watch.py info` prints it, along with HDMI
+   Control, Power Off Control, Auto Standby, and Network Standby. Menu paths in
+   this guide are generic until we have it.
+2. **Which device goes dark first**, TV or receiver. One free observation per
+   failure. TV first means it's initiating and dragging the receiver down;
+   receiver first means the reverse.
+3. **Whether the TV's HDMI cable has been swapped.** A marginal cable is the
+   single most common cause of an intermittent handshake, and it is a
+   sixty-second test.
